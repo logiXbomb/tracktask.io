@@ -18,14 +18,27 @@ type Msg
 
 
 type alias Model =
-    { tasks : List Task }
+    { mode : Mode
+    , tasks : List Task
+    }
+
+
+type Mode
+    = Insert
+    | Normal
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init () url key =
-    ( { tasks = [] }
+    ( { mode = Normal
+      , tasks = []
+      }
     , Cmd.none
     )
+
+
+
+-- UPDATE
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -33,7 +46,8 @@ update msg model =
     case msg of
         AddTask ->
             ( { model
-                | tasks =
+                | mode = Insert
+                , tasks =
                     { title = ""
                     , description = ""
                     , status = ""
@@ -111,10 +125,14 @@ onUrlChange url =
     NoOp
 
 
+
+-- SUBSCRIPTIONS
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ onKeyDown HandleKeyStroke ]
+        [ onKeyDown model HandleKeyStroke ]
 
 
 type KeyPress
@@ -128,30 +146,34 @@ type alias KeyEvent =
     { key : String }
 
 
-keyPress : Decoder KeyPress
-keyPress =
+keyPress : Model -> Decoder KeyPress
+keyPress model =
     Decode.map KeyEvent
         (Decode.field "key" Decode.string)
         |> Decode.map
             (\event ->
-                case event.key of
-                    "j" ->
-                        Down
+                if model.mode == Normal then
+                    case event.key of
+                        "j" ->
+                            Down
 
-                    "o" ->
-                        AppendNewLine
+                        "o" ->
+                            AppendNewLine
 
-                    "O" ->
-                        PrependNewLine
+                        "O" ->
+                            PrependNewLine
 
-                    _ ->
-                        NoOpKey
+                        _ ->
+                            NoOpKey
+
+                else
+                    NoOpKey
             )
 
 
-onKeyDown : (KeyPress -> Msg) -> Sub Msg
-onKeyDown tagger =
-    DOMEvents.onKeyDown (Decode.map tagger keyPress)
+onKeyDown : Model -> (KeyPress -> Msg) -> Sub Msg
+onKeyDown model tagger =
+    DOMEvents.onKeyDown (Decode.map tagger (keyPress model))
 
 
 main =

@@ -6,29 +6,17 @@ import Html.Styled exposing (..)
 import Url
 
 
-tasks =
-    [ { title = "One"
-      , description = ""
-      , status = ""
-      }
-    , { title = "Two"
-      , description = ""
-      , status = ""
-      }
-    ]
-
-
 type Msg
     = NoOp
 
 
 type alias Model =
-    { noop : String }
+    { tasks : List Task }
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init () url key =
-    ( { noop = "" }
+    ( { tasks = [] }
     , Cmd.none
     )
 

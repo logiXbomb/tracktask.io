@@ -7,7 +7,8 @@ import Url
 
 
 type Msg
-    = NoOp
+    = AddTask
+    | NoOp
 
 
 type alias Model =
@@ -23,7 +24,21 @@ init () url key =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        AddTask ->
+            ( { model
+                | tasks =
+                    { title = ""
+                    , description = ""
+                    , status = ""
+                    }
+                        :: model.tasks
+              }
+            , Cmd.none
+            )
+
+        NoOp ->
+            ( model, Cmd.none )
 
 
 view : Model -> Browser.Document Msg

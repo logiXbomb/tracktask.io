@@ -1,13 +1,18 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Events as DOMEvents
 import Browser.Navigation as Nav
 import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (..)
+import Json.Decode as Decode exposing (Decoder)
 import Url
 
 
 type Msg
     = AddTask
+    | HandleKeyStroke KeyPress
     | NoOp
 
 
@@ -37,6 +42,13 @@ update msg model =
             , Cmd.none
             )
 
+        HandleKeyStroke key ->
+            let
+                k =
+                    Debug.log "key" key
+            in
+            ( model, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -46,8 +58,9 @@ view model =
     { title = "Elm Tasks"
     , body =
         [ toUnstyled <|
-            div []
-                [ text "app" ]
+            div
+                []
+                [ text "hmm" ]
         ]
     }
 
@@ -64,7 +77,45 @@ onUrlChange url =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Sub.batch
+        [ onKeyDown HandleKeyStroke ]
+
+
+type KeyPress
+    = Down
+    | AppendNewLine
+    | PrependNewLine
+    | NoOpKey
+
+
+type alias KeyEvent =
+    { key : String }
+
+
+keyPress : Decoder KeyPress
+keyPress =
+    Decode.map KeyEvent
+        (Decode.field "key" Decode.string)
+        |> Decode.map
+            (\event ->
+                case event.key of
+                    "j" ->
+                        Down
+
+                    "o" ->
+                        AppendNewLine
+
+                    "O" ->
+                        PrependNewLine
+
+                    _ ->
+                        NoOpKey
+            )
+
+
+onKeyDown : (KeyPress -> Msg) -> Sub Msg
+onKeyDown tagger =
+    DOMEvents.onKeyDown (Decode.map tagger keyPress)
 
 
 main =

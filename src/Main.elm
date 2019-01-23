@@ -43,14 +43,19 @@ update msg model =
             )
 
         HandleKeyStroke key ->
-            let
-                k =
-                    Debug.log "key" key
-            in
-            ( model, Cmd.none )
+            case key of
+                AppendNewLine ->
+                    update AddTask model
+
+                _ ->
+                    ( model, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
+
+
+
+-- VIEW
 
 
 view : Model -> Browser.Document Msg
@@ -60,7 +65,12 @@ view model =
         [ toUnstyled <|
             div
                 []
-                [ text "hmm" ]
+                (model.tasks
+                    |> List.map
+                        (\t ->
+                            text "g"
+                        )
+                )
         ]
     }
 

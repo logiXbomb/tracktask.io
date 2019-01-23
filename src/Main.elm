@@ -3,6 +3,7 @@ module Main exposing (main)
 import Browser
 import Browser.Events as DOMEvents
 import Browser.Navigation as Nav
+import Css as C
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
@@ -64,15 +65,40 @@ view model =
     , body =
         [ toUnstyled <|
             div
-                []
-                (model.tasks
-                    |> List.map
-                        (\t ->
-                            text "g"
-                        )
-                )
+                [ css
+                    [ C.displayFlex
+                    , C.width <| C.pct 100
+                    , C.height <| C.pct 100
+                    , C.justifyContent C.center
+                    ]
+                ]
+                [ taskList model ]
         ]
     }
+
+
+
+-- TASK LIST
+
+
+taskList : Model -> Html Msg
+taskList model =
+    div []
+        (model.tasks
+            |> List.map (task model)
+        )
+
+
+task : Model -> Task -> Html Msg
+task model t =
+    div
+        [ css
+            [ C.border3 (C.px 2) C.solid (C.hex "5e5e5e")
+            , C.width <| C.px 150
+            , C.height <| C.px 48
+            ]
+        ]
+        [ text t.title ]
 
 
 onUrlRequest : Browser.UrlRequest -> Msg

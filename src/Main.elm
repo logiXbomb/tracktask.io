@@ -24,6 +24,7 @@ testTasks =
 
 type Msg
     = AddTask
+    | UpdateTaskTitle Int String
     | HandleKeyStroke KeyPress
     | NoOp
 
@@ -64,6 +65,22 @@ update msg model =
                     { title = ""
                     }
                         :: model.tasks
+              }
+            , Cmd.none
+            )
+
+        UpdateTaskTitle index title ->
+            ( { model
+                | tasks =
+                    model.tasks
+                        |> List.indexedMap
+                            (\i t ->
+                                if i == index then
+                                    { t | title = title }
+
+                                else
+                                    t
+                            )
               }
             , Cmd.none
             )
@@ -156,6 +173,7 @@ task model index t =
             input
                 [ value t.title
                 , id "active-task"
+                , onInput (UpdateTaskTitle index)
                 ]
                 []
 

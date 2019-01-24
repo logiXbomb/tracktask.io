@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Dom as Dom
 import Browser.Events as DOMEvents
 import Browser.Navigation as Nav
 import Css as C
@@ -8,6 +9,7 @@ import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
 import Json.Decode as Decode exposing (Decoder)
+import Task
 import Url
 
 
@@ -78,7 +80,8 @@ update msg model =
 
                 InsertMode ->
                     ( { model | mode = Insert }
-                    , Cmd.none
+                    , Dom.focus "active-task"
+                        |> Task.attempt (\_ -> NoOp)
                     )
 
                 NormalMode ->
@@ -134,18 +137,31 @@ taskList model =
 
 task : Model -> Int -> Task -> Html Msg
 task model index t =
+    let
+        isActive =
+            index == model.activeTask
+    in
     div
         [ css
             [ C.width <| C.px 150
             , C.height <| C.px 48
-            , if index == model.activeTask then
-                C.border3 (C.px 3) C.solid (C.hex "e5e5e5")
+            , if isActive then
+                C.border3 (C.px 3) C.solid (C.hex "00b38a")
 
               else
                 C.border3 (C.px 2) C.solid (C.hex "5e5e5e")
             ]
         ]
-        [ text t.title ]
+        [ if isActive && model.mode == Insert then
+            input
+                [ value t.title
+                , id "active-task"
+                ]
+                []
+
+          else
+            text t.title
+        ]
 
 
 onUrlRequest : Browser.UrlRequest -> Msg

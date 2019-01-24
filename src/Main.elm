@@ -11,6 +11,15 @@ import Json.Decode as Decode exposing (Decoder)
 import Url
 
 
+testTasks =
+    [ { title = "Pick Up Meds"
+      }
+    , { title = "JIRA-2584"
+      }
+    , { title = "Workout" }
+    ]
+
+
 type Msg
     = AddTask
     | HandleKeyStroke KeyPress
@@ -18,7 +27,8 @@ type Msg
 
 
 type alias Model =
-    { mode : Mode
+    { activeTask : Int
+    , mode : Mode
     , tasks : List Task
     }
 
@@ -30,8 +40,9 @@ type Mode
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init () url key =
-    ( { mode = Normal
-      , tasks = []
+    ( { activeTask = 0
+      , mode = Normal
+      , tasks = testTasks
       }
     , Cmd.none
     )
@@ -49,8 +60,6 @@ update msg model =
                 | mode = Insert
                 , tasks =
                     { title = ""
-                    , description = ""
-                    , status = ""
                     }
                         :: model.tasks
               }
@@ -99,17 +108,21 @@ taskList : Model -> Html Msg
 taskList model =
     div []
         (model.tasks
-            |> List.map (task model)
+            |> List.indexedMap (task model)
         )
 
 
-task : Model -> Task -> Html Msg
-task model t =
+task : Model -> Int -> Task -> Html Msg
+task model index t =
     div
         [ css
-            [ C.border3 (C.px 2) C.solid (C.hex "5e5e5e")
-            , C.width <| C.px 150
+            [ C.width <| C.px 150
             , C.height <| C.px 48
+            , if index == model.activeTask then
+                C.border3 (C.px 3) C.solid (C.hex "e5e5e5")
+
+              else
+                C.border3 (C.px 2) C.solid (C.hex "5e5e5e")
             ]
         ]
         [ text t.title ]
@@ -189,6 +202,4 @@ main =
 
 type alias Task =
     { title : String
-    , description : String
-    , status : String
     }

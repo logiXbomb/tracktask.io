@@ -1,1 +1,1 @@
-elm-live src/Main.elm -p 4050 -- --output=main.js --debug
+elm-live src/Main.elm -p 4050 -- --output=./tracktask.io/main.js --debug

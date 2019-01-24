@@ -5625,6 +5625,31 @@ var author$project$Main$subscriptions = function (model) {
 };
 var author$project$Main$AddTask = {$: 'AddTask'};
 var author$project$Main$Insert = {$: 'Insert'};
+var elm$browser$Browser$Dom$focus = _Browser_call('focus');
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Task$onError = _Scheduler_onError;
+var elm$core$Task$attempt = F2(
+	function (resultToMessage, task) {
+		return elm$core$Task$command(
+			elm$core$Task$Perform(
+				A2(
+					elm$core$Task$onError,
+					A2(
+						elm$core$Basics$composeL,
+						A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
+						elm$core$Result$Err),
+					A2(
+						elm$core$Task$andThen,
+						A2(
+							elm$core$Basics$composeL,
+							A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
+							elm$core$Result$Ok),
+						task))));
+	});
 var author$project$Main$update = F2(
 	function (msg, model) {
 		update:
@@ -5639,6 +5664,24 @@ var author$project$Main$update = F2(
 								tasks: A2(
 									elm$core$List$cons,
 									{title: ''},
+									model.tasks)
+							}),
+						elm$core$Platform$Cmd$none);
+				case 'UpdateTaskTitle':
+					var index = msg.a;
+					var title = msg.b;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								tasks: A2(
+									elm$core$List$indexedMap,
+									F2(
+										function (i, t) {
+											return _Utils_eq(i, index) ? _Utils_update(
+												t,
+												{title: title}) : t;
+										}),
 									model.tasks)
 							}),
 						elm$core$Platform$Cmd$none);
@@ -5662,7 +5705,12 @@ var author$project$Main$update = F2(
 								_Utils_update(
 									model,
 									{mode: author$project$Main$Insert}),
-								elm$core$Platform$Cmd$none);
+								A2(
+									elm$core$Task$attempt,
+									function (_n2) {
+										return author$project$Main$NoOp;
+									},
+									elm$browser$Browser$Dom$focus('active-task')));
 						case 'NormalMode':
 							return _Utils_Tuple2(
 								_Utils_update(
@@ -5682,6 +5730,10 @@ var author$project$Main$update = F2(
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 			}
 		}
+	});
+var author$project$Main$UpdateTaskTitle = F2(
+	function (a, b) {
+		return {$: 'UpdateTaskTitle', a: a, b: b};
 	});
 var rtfeldman$elm_css$Css$Preprocess$AppendProperty = function (a) {
 	return {$: 'AppendProperty', a: a};
@@ -6149,6 +6201,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$Node = F3(
 var rtfeldman$elm_css$VirtualDom$Styled$node = rtfeldman$elm_css$VirtualDom$Styled$Node;
 var rtfeldman$elm_css$Html$Styled$node = rtfeldman$elm_css$VirtualDom$Styled$node;
 var rtfeldman$elm_css$Html$Styled$div = rtfeldman$elm_css$Html$Styled$node('div');
+var rtfeldman$elm_css$Html$Styled$input = rtfeldman$elm_css$Html$Styled$node('input');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
 	return {$: 'Unstyled', a: a};
@@ -7404,11 +7457,6 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$toStructure = function (_n0) {
 		A2(elm$core$List$concatMap, rtfeldman$elm_css$Css$Preprocess$unwrapSnippet, snippets));
 	return {charset: charset, declarations: declarations, imports: imports, namespaces: namespaces};
 };
-var elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
 var elm$core$Basics$not = _Basics_not;
 var elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -7905,8 +7953,66 @@ var rtfeldman$elm_css$Html$Styled$Internal$css = function (styles) {
 	return A3(rtfeldman$elm_css$VirtualDom$Styled$Attribute, classProperty, styles, classname);
 };
 var rtfeldman$elm_css$Html$Styled$Attributes$css = rtfeldman$elm_css$Html$Styled$Internal$css;
+var rtfeldman$elm_css$VirtualDom$Styled$property = F2(
+	function (key, value) {
+		return A3(
+			rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2(elm$virtual_dom$VirtualDom$property, key, value),
+			_List_Nil,
+			'');
+	});
+var rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			rtfeldman$elm_css$VirtualDom$Styled$property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var rtfeldman$elm_css$Html$Styled$Attributes$id = rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('id');
+var rtfeldman$elm_css$Html$Styled$Attributes$value = rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('value');
+var rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var rtfeldman$elm_css$VirtualDom$Styled$on = F2(
+	function (eventName, handler) {
+		return A3(
+			rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2(elm$virtual_dom$VirtualDom$on, eventName, handler),
+			_List_Nil,
+			'');
+	});
+var rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			rtfeldman$elm_css$VirtualDom$Styled$on,
+			event,
+			elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
+	});
+var rtfeldman$elm_css$Html$Styled$Events$targetValue = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	elm$json$Json$Decode$string);
+var rtfeldman$elm_css$Html$Styled$Events$onInput = function (tagger) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn,
+		'input',
+		A2(
+			elm$json$Json$Decode$map,
+			rtfeldman$elm_css$Html$Styled$Events$alwaysStop,
+			A2(elm$json$Json$Decode$map, tagger, rtfeldman$elm_css$Html$Styled$Events$targetValue)));
+};
 var author$project$Main$task = F3(
 	function (model, index, t) {
+		var isActive = _Utils_eq(index, model.activeTask);
 		return A2(
 			rtfeldman$elm_css$Html$Styled$div,
 			_List_fromArray(
@@ -7918,11 +8024,11 @@ var author$project$Main$task = F3(
 							rtfeldman$elm_css$Css$px(150)),
 							rtfeldman$elm_css$Css$height(
 							rtfeldman$elm_css$Css$px(48)),
-							_Utils_eq(index, model.activeTask) ? A3(
+							isActive ? A3(
 							rtfeldman$elm_css$Css$border3,
 							rtfeldman$elm_css$Css$px(3),
 							rtfeldman$elm_css$Css$solid,
-							rtfeldman$elm_css$Css$hex('e5e5e5')) : A3(
+							rtfeldman$elm_css$Css$hex('00b38a')) : A3(
 							rtfeldman$elm_css$Css$border3,
 							rtfeldman$elm_css$Css$px(2),
 							rtfeldman$elm_css$Css$solid,
@@ -7931,7 +8037,16 @@ var author$project$Main$task = F3(
 				]),
 			_List_fromArray(
 				[
-					rtfeldman$elm_css$Html$Styled$text(t.title)
+					(isActive && _Utils_eq(model.mode, author$project$Main$Insert)) ? A2(
+					rtfeldman$elm_css$Html$Styled$input,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$Attributes$value(t.title),
+							rtfeldman$elm_css$Html$Styled$Attributes$id('active-task'),
+							rtfeldman$elm_css$Html$Styled$Events$onInput(
+							author$project$Main$UpdateTaskTitle(index))
+						]),
+					_List_Nil) : rtfeldman$elm_css$Html$Styled$text(t.title)
 				]));
 	});
 var author$project$Main$taskList = function (model) {

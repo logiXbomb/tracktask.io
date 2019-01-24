@@ -76,6 +76,11 @@ update msg model =
                     , Cmd.none
                     )
 
+                InsertMode ->
+                    ( { model | mode = Insert }
+                    , Cmd.none
+                    )
+
                 Up ->
                     ( { model | activeTask = model.activeTask - 1 }
                     , Cmd.none
@@ -158,9 +163,14 @@ subscriptions model =
         [ onKeyDown model HandleKeyStroke ]
 
 
+
+-- SHORTCUTS
+
+
 type KeyPress
     = Down
     | Up
+    | InsertMode
     | AppendNewLine
     | PrependNewLine
     | NoOpKey
@@ -189,6 +199,9 @@ keyPress model =
 
                         "O" ->
                             PrependNewLine
+
+                        "i" ->
+                            InsertMode
 
                         _ ->
                             NoOpKey

@@ -71,6 +71,11 @@ update msg model =
                 AppendNewLine ->
                     update AddTask model
 
+                Down ->
+                    ( { model | activeTask = model.activeTask + 1 }
+                    , Cmd.none
+                    )
+
                 _ ->
                     ( model, Cmd.none )
 

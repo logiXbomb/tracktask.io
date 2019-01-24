@@ -76,6 +76,11 @@ update msg model =
                     , Cmd.none
                     )
 
+                Up ->
+                    ( { model | activeTask = model.activeTask - 1 }
+                    , Cmd.none
+                    )
+
                 _ ->
                     ( model, Cmd.none )
 
@@ -155,6 +160,7 @@ subscriptions model =
 
 type KeyPress
     = Down
+    | Up
     | AppendNewLine
     | PrependNewLine
     | NoOpKey
@@ -172,6 +178,9 @@ keyPress model =
             (\event ->
                 if model.mode == Normal then
                     case event.key of
+                        "k" ->
+                            Up
+
                         "j" ->
                             Down
 

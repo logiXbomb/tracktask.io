@@ -81,6 +81,11 @@ update msg model =
                     , Cmd.none
                     )
 
+                NormalMode ->
+                    ( { model | mode = Normal }
+                    , Cmd.none
+                    )
+
                 Up ->
                     ( { model | activeTask = model.activeTask - 1 }
                     , Cmd.none
@@ -171,6 +176,7 @@ type KeyPress
     = Down
     | Up
     | InsertMode
+    | NormalMode
     | AppendNewLine
     | PrependNewLine
     | NoOpKey
@@ -207,7 +213,12 @@ keyPress model =
                             NoOpKey
 
                 else
-                    NoOpKey
+                    case event.key of
+                        "Escape" ->
+                            NormalMode
+
+                        _ ->
+                            NoOpKey
             )
 
 

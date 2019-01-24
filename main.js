@@ -4849,11 +4849,14 @@ var author$project$Main$HandleKeyStroke = function (a) {
 };
 var author$project$Main$AppendNewLine = {$: 'AppendNewLine'};
 var author$project$Main$Down = {$: 'Down'};
+var author$project$Main$InsertMode = {$: 'InsertMode'};
 var author$project$Main$KeyEvent = function (key) {
 	return {key: key};
 };
 var author$project$Main$NoOpKey = {$: 'NoOpKey'};
+var author$project$Main$NormalMode = {$: 'NormalMode'};
 var author$project$Main$PrependNewLine = {$: 'PrependNewLine'};
+var author$project$Main$Up = {$: 'Up'};
 var elm$json$Json$Decode$field = _Json_decodeField;
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$string = _Json_decodeString;
@@ -4864,17 +4867,26 @@ var author$project$Main$keyPress = function (model) {
 			if (_Utils_eq(model.mode, author$project$Main$Normal)) {
 				var _n0 = event.key;
 				switch (_n0) {
+					case 'k':
+						return author$project$Main$Up;
 					case 'j':
 						return author$project$Main$Down;
 					case 'o':
 						return author$project$Main$AppendNewLine;
 					case 'O':
 						return author$project$Main$PrependNewLine;
+					case 'i':
+						return author$project$Main$InsertMode;
 					default:
 						return author$project$Main$NoOpKey;
 				}
 			} else {
-				return author$project$Main$NoOpKey;
+				var _n1 = event.key;
+				if (_n1 === 'Escape') {
+					return author$project$Main$NormalMode;
+				} else {
+					return author$project$Main$NoOpKey;
+				}
 			}
 		},
 		A2(
@@ -5632,14 +5644,39 @@ var author$project$Main$update = F2(
 						elm$core$Platform$Cmd$none);
 				case 'HandleKeyStroke':
 					var key = msg.a;
-					if (key.$ === 'AppendNewLine') {
-						var $temp$msg = author$project$Main$AddTask,
-							$temp$model = model;
-						msg = $temp$msg;
-						model = $temp$model;
-						continue update;
-					} else {
-						return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+					switch (key.$) {
+						case 'AppendNewLine':
+							var $temp$msg = author$project$Main$AddTask,
+								$temp$model = model;
+							msg = $temp$msg;
+							model = $temp$model;
+							continue update;
+						case 'Down':
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{activeTask: model.activeTask + 1}),
+								elm$core$Platform$Cmd$none);
+						case 'InsertMode':
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{mode: author$project$Main$Insert}),
+								elm$core$Platform$Cmd$none);
+						case 'NormalMode':
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{mode: author$project$Main$Normal}),
+								elm$core$Platform$Cmd$none);
+						case 'Up':
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{activeTask: model.activeTask - 1}),
+								elm$core$Platform$Cmd$none);
+						default:
+							return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 					}
 				default:
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);

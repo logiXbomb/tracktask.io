@@ -1,1 +1,1 @@
-elm-live Main.elm -p 4050 -- --output=./tasktrack.io/main.js --debug
+elm-live src/Main.elm -p 4050 -- --output=./tasktrack.io/main.js --debug

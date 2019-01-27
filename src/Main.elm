@@ -9,6 +9,7 @@ import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
 import Json.Decode as Decode exposing (Decoder)
+import List.Extra as LE
 import Task
 import Url
 
@@ -19,14 +20,14 @@ type IOError
 
 type Msg
     = AddTask
-    | AddTaskResponse (Result IOError (List Task))
-    | UpdateTaskTitle Int String
+    | UpdateTaskList TaskListResponse
+    | UpdateTaskTitle String String
     | HandleKeyStroke KeyPress
     | NoOp
 
 
 type alias Model =
-    { activeTask : Int
+    { activeTask : String
     , mode : Mode
     , tasks : List Task
     , navKey : Nav.Key
@@ -40,7 +41,7 @@ type Mode
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init () url key =
-    ( { activeTask = 0
+    ( { activeTask = ""
       , mode = Normal
       , tasks = []
       , navKey = key
@@ -61,25 +62,23 @@ update msg model =
             , addTask ()
             )
 
-        AddTaskResponse (Ok tl) ->
-            ( { model | tasks = tl }
-            , Cmd.none
+        UpdateTaskList rsp ->
+            ( { model
+                | tasks = rsp.taskList
+                , mode = Insert
+                , activeTask = rsp.activeTask
+              }
+            , Dom.focus "active-task"
+                |> Task.attempt (\_ -> NoOp)
             )
-
-        AddTaskResponse (Err error) ->
-            let
-                e =
-                    Debug.log "ERROR" error
-            in
-            ( model, Cmd.none )
 
         UpdateTaskTitle index title ->
             ( { model
                 | tasks =
                     model.tasks
-                        |> List.indexedMap
-                            (\i t ->
-                                if i == index then
+                        |> List.map
+                            (\t ->
+                                if t.id == index then
                                     { t | title = title }
 
                                 else
@@ -95,7 +94,9 @@ update msg model =
                     update AddTask model
 
                 Down ->
-                    ( { model | activeTask = model.activeTask + 1 }
+                    ( { model
+                        | activeTask = nextTask model
+                      }
                     , Cmd.none
                     )
 
@@ -107,11 +108,13 @@ update msg model =
 
                 NormalMode ->
                     ( { model | mode = Normal }
-                    , Cmd.none
+                    , saveTaskList model.tasks
                     )
 
                 Up ->
-                    ( { model | activeTask = model.activeTask - 1 }
+                    ( { model
+                        | activeTask = prevTask model
+                      }
                     , Cmd.none
                     )
 
@@ -120,6 +123,60 @@ update msg model =
 
         NoOp ->
             ( model, Cmd.none )
+
+
+prevTask : Model -> String
+prevTask model =
+    let
+        index =
+            model.tasks
+                |> LE.findIndex
+                    (\t ->
+                        t.id == model.activeTask
+                    )
+    in
+    case index of
+        Just idx ->
+            model.tasks
+                |> LE.getAt (idx - 1)
+                |> (\foundTask ->
+                        case foundTask of
+                            Just t ->
+                                t.id
+
+                            Nothing ->
+                                model.activeTask
+                   )
+
+        Nothing ->
+            model.activeTask
+
+
+nextTask : Model -> String
+nextTask model =
+    let
+        index =
+            model.tasks
+                |> LE.findIndex
+                    (\t ->
+                        t.id == model.activeTask
+                    )
+    in
+    case index of
+        Just idx ->
+            model.tasks
+                |> LE.getAt (idx + 1)
+                |> (\foundTask ->
+                        case foundTask of
+                            Just t ->
+                                t.id
+
+                            Nothing ->
+                                model.activeTask
+                   )
+
+        Nothing ->
+            model.activeTask
 
 
 
@@ -152,15 +209,15 @@ taskList : Model -> Html Msg
 taskList model =
     div []
         (model.tasks
-            |> List.indexedMap (task model)
+            |> List.map (task model)
         )
 
 
-task : Model -> Int -> Task -> Html Msg
-task model index t =
+task : Model -> Task -> Html Msg
+task model t =
     let
         isActive =
-            index == model.activeTask
+            t.id == model.activeTask
     in
     div
         [ css
@@ -177,7 +234,7 @@ task model index t =
             input
                 [ value t.title
                 , id "active-task"
-                , onInput (UpdateTaskTitle index)
+                , onInput (UpdateTaskTitle t.id)
                 ]
                 []
 
@@ -203,7 +260,9 @@ onUrlChange url =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ onKeyDown model HandleKeyStroke ]
+        [ onKeyDown model HandleKeyStroke
+        , updateTaskList UpdateTaskList
+        ]
 
 
 
@@ -276,9 +335,26 @@ main =
         }
 
 
+
+-- TASK
+
+
 type alias Task =
-    { title : String
+    { id : String
+    , title : String
     }
 
 
 port addTask : () -> Cmd msg
+
+
+type alias TaskListResponse =
+    { activeTask : String
+    , taskList : List Task
+    }
+
+
+port updateTaskList : (TaskListResponse -> msg) -> Sub msg
+
+
+port saveTaskList : List Task -> Cmd msg

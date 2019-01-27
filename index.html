@@ -6,9 +6,18 @@
 	<body>
 		<div id="app"></div>
 		<script>
-			Elm.Main.init({
+			const app = Elm.Main.init({
 				node: document.getElementById('app')
 			});
+
+			const ports = app.ports;
+
+			if (ports && ports.addTask) {
+				ports.addTask.subscribe(() => {
+					console.log('add task')
+				})
+
+			}
 		</script>
 	</body>
 </html>

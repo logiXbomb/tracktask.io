@@ -1,4 +1,4 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Browser
 import Browser.Dom as Dom
@@ -13,17 +13,13 @@ import Task
 import Url
 
 
-testTasks =
-    [ { title = "Pick Up Meds"
-      }
-    , { title = "JIRA-2584"
-      }
-    , { title = "Workout" }
-    ]
+type IOError
+    = ItFailed
 
 
 type Msg
     = AddTask
+    | AddTaskResponse (Result IOError (List Task))
     | UpdateTaskTitle Int String
     | HandleKeyStroke KeyPress
     | NoOp
@@ -45,7 +41,7 @@ init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init () url key =
     ( { activeTask = 0
       , mode = Normal
-      , tasks = testTasks
+      , tasks = []
       }
     , Cmd.none
     )
@@ -59,15 +55,21 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         AddTask ->
-            ( { model
-                | mode = Insert
-                , tasks =
-                    { title = ""
-                    }
-                        :: model.tasks
-              }
+            ( model
+            , addTask ()
+            )
+
+        AddTaskResponse (Ok tl) ->
+            ( { model | tasks = tl }
             , Cmd.none
             )
+
+        AddTaskResponse (Err error) ->
+            let
+                e =
+                    Debug.log "ERROR" error
+            in
+            ( model, Cmd.none )
 
         UpdateTaskTitle index title ->
             ( { model
@@ -275,3 +277,6 @@ main =
 type alias Task =
     { title : String
     }
+
+
+port addTask : () -> Cmd msg

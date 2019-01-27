@@ -29,6 +29,7 @@ type alias Model =
     { activeTask : Int
     , mode : Mode
     , tasks : List Task
+    , navKey : Nav.Key
     }
 
 
@@ -42,6 +43,7 @@ init () url key =
     ( { activeTask = 0
       , mode = Normal
       , tasks = []
+      , navKey = key
       }
     , Cmd.none
     )

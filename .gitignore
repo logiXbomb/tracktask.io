@@ -2,3 +2,5 @@ elm-stuff
 tracktask.io/
 *.swp
 node_modules
+.cache/
+dist/

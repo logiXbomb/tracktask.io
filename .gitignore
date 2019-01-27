@@ -3,5 +3,4 @@ tracktask.io/
 *.swp
 node_modules
 .cache/
-dist/
 main.js

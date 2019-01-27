@@ -4,6 +4,7 @@
   "description": "## TODO On Steroids",
   "main": "main.js",
   "scripts": {
+		"build": "parcel build ./src/index.js",
     "start": "parcel ./src/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

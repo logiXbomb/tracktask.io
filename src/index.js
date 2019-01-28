@@ -52,3 +52,63 @@ if (ports && ports.addTask) {
 if (ports && ports.saveTaskList) {
 	ports.saveTaskList.subscribe(setTasks);
 }
+
+if (ports && ports.moveTaskUp) {
+	ports.moveTaskUp.subscribe(activeTask => {
+		const tl = getTasks();
+		
+		const index = tl.findIndex(t => t.id === activeTask);
+		const newIndex = index - 1;
+
+		const taskList = [];
+
+		for (let i = 0; i < tl.length; i++) {
+			if (i === newIndex) {
+				taskList.push(tl[index]);
+			} else if (i === index) {
+				taskList.push(tl[newIndex]);
+			} else {
+				taskList.push(tl[i]);
+			}
+		}
+
+		setTasks(taskList);
+
+		if (ports && ports.updateTaskList) {
+			ports.updateTaskList.send({
+				taskList,
+				activeTask,
+			});
+		}
+	});
+}
+
+if (ports && ports.moveTaskDown) {
+	ports.moveTaskDown.subscribe(activeTask => {
+		const tl = getTasks();
+		
+		const index = tl.findIndex(t => t.id === activeTask);
+		const newIndex = index + 1;
+
+		const taskList = [];
+
+		for (let i = 0; i < tl.length; i++) {
+			if (i === newIndex) {
+				taskList.push(tl[index]);
+			} else if (i === index) {
+				taskList.push(tl[newIndex]);
+			} else {
+				taskList.push(tl[i]);
+			}
+		}
+
+		setTasks(taskList);
+
+		if (ports && ports.updateTaskList) {
+			ports.updateTaskList.send({
+				taskList,
+				activeTask,
+			});
+		}
+	});
+}

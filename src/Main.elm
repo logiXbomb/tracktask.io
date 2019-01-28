@@ -26,11 +26,16 @@ type Msg
     | NoOp
 
 
+
+-- MODEL
+
+
 type alias Model =
     { activeTask : String
     , mode : Mode
     , tasks : List Task
     , navKey : Nav.Key
+    , pendingKey : Maybe KeyPress
     }
 
 
@@ -45,6 +50,7 @@ init () url key =
       , mode = Normal
       , tasks = []
       , navKey = key
+      , pendingKey = Nothing
       }
     , Cmd.none
     )
@@ -65,7 +71,6 @@ update msg model =
         UpdateTaskList rsp ->
             ( { model
                 | tasks = rsp.taskList
-                , mode = Insert
                 , activeTask = rsp.activeTask
               }
             , Dom.focus "active-task"
@@ -93,12 +98,19 @@ update msg model =
                 AppendNewLine ->
                     update AddTask model
 
-                Down ->
-                    ( { model
-                        | activeTask = nextTask model
-                      }
-                    , Cmd.none
-                    )
+                Up ->
+                    case model.pendingKey of
+                        Just pk ->
+                            ( { model | pendingKey = Nothing }
+                            , moveTaskUp model.activeTask
+                            )
+
+                        Nothing ->
+                            ( { model
+                                | activeTask = prevTask model
+                              }
+                            , Cmd.none
+                            )
 
                 InsertMode ->
                     ( { model | mode = Insert }
@@ -111,12 +123,24 @@ update msg model =
                     , saveTaskList model.tasks
                     )
 
-                Up ->
-                    ( { model
-                        | activeTask = prevTask model
-                      }
+                PendKey ->
+                    ( { model | pendingKey = Just Down }
                     , Cmd.none
                     )
+
+                Down ->
+                    case model.pendingKey of
+                        Just pk ->
+                            ( { model | pendingKey = Nothing }
+                            , moveTaskDown model.activeTask
+                            )
+
+                        Nothing ->
+                            ( { model
+                                | activeTask = nextTask model
+                              }
+                            , Cmd.none
+                            )
 
                 _ ->
                     ( model, Cmd.none )
@@ -275,6 +299,7 @@ type KeyPress
     | InsertMode
     | NormalMode
     | AppendNewLine
+    | PendKey
     | PrependNewLine
     | NoOpKey
 
@@ -305,6 +330,9 @@ keyPress model =
 
                         "i" ->
                             InsertMode
+
+                        "m" ->
+                            PendKey
 
                         _ ->
                             NoOpKey
@@ -358,3 +386,9 @@ port updateTaskList : (TaskListResponse -> msg) -> Sub msg
 
 
 port saveTaskList : List Task -> Cmd msg
+
+
+port moveTaskUp : String -> Cmd msg
+
+
+port moveTaskDown : String -> Cmd msg

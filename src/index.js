@@ -123,9 +123,3 @@ if (ports && ports.moveTaskDown) {
 	});
 }
 
-if (navigator && navigator.serviceWorker) {
-	navigator.serviceWorker.register('./worker.js')
-		.then(() => {
-			console.log('worker registered');
-		});
-}

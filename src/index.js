@@ -1,14 +1,6 @@
 import uuid from 'uuid';
 import { Elm } from './Main.elm';
 
-const node = document.getElementById('app');
-
-const app = Elm.Main.init({
-	node,
-});
-
-const ports = app.ports;
-
 const getItem = key => () => {
 	const json = localStorage.getItem(key);
 	if (json) {
@@ -29,6 +21,24 @@ const setItem = key => json => {
 const getTasks = getItem('tasks');
 
 const setTasks = setItem('tasks');
+
+const node = document.getElementById('app');
+
+const tl = getTasks();
+let activeTask = "";
+if (tl.length > 0) {
+	activeTask = tl[0].id;
+}
+
+const app = Elm.Main.init({
+	node,
+	flags: {
+		activeTask,
+		tasks: tl,
+	},
+});
+
+const ports = app.ports;
 
 if (ports && ports.addTask) {
 	ports.addTask.subscribe(() => {

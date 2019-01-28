@@ -44,11 +44,21 @@ type Mode
     | Normal
 
 
-init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init () url key =
-    ( { activeTask = ""
+
+-- INIT
+
+
+type alias Flags =
+    { tasks : List Task
+    , activeTask : String
+    }
+
+
+init : Flags -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
+    ( { activeTask = flags.activeTask
       , mode = Normal
-      , tasks = []
+      , tasks = flags.tasks
       , navKey = key
       , pendingKey = Nothing
       }

@@ -24,9 +24,9 @@ const setTasks = setItem('tasks');
 
 const node = document.getElementById('app');
 
-const tl = getTasks();
+const tl = getTasks() || [];
 let activeTask = "";
-if (tl.length > 0) {
+if (tl && tl.length && tl.length > 0) {
 	activeTask = tl[0].id;
 }
 

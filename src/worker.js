@@ -1,4 +1,4 @@
-const cacheName = 'tracktask.io';
+const cacheName = 'tracktask';
 const filesToCache = [
 	'../',
 	'../index.html',
@@ -16,7 +16,7 @@ self.addEventListener('install', evt => {
 });
 
 self.addEventListener('activate', evt => {
-	event.waitUntil(self.clients.claim());
+	evt.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', evt => {

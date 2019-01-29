@@ -123,3 +123,6 @@ if (ports && ports.moveTaskDown) {
 	});
 }
 
+window.addEventListener('beforeinstallprompt', evt => {
+	evt.prompt();
+});

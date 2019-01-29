@@ -12,7 +12,7 @@
 		<script>
 			if (navigator && navigator.serviceWorker) {
 				navigator.serviceWorker.register('/dist/worker.js', {
-					scope: '.'
+					scope: '../'
 				})
 					.then(() => {
 						console.log('worker registered');

@@ -11,7 +11,9 @@
 		<script src="/dist/index.js"></script>
 		<script>
 			if (navigator && navigator.serviceWorker) {
-				navigator.serviceWorker.register('/dist/worker.js')
+				navigator.serviceWorker.register('/dist/worker.js', {
+					scope: '.'.
+				})
 					.then(() => {
 						console.log('worker registered');
 					});

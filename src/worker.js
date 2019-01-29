@@ -1,8 +1,8 @@
 const cacheName = 'tracktask.io';
 const filesToCache = [
-	'/',
-	'/index.html',
-	'/dist/index.js',
+	'../',
+	'../index.html',
+	'../dist/index.js',
 ];
 
 self.addEventListener('install', evt => {
@@ -21,7 +21,7 @@ self.addEventListener('activate', evt => {
 
 self.addEventListener('fetch', evt => {
 	evt.respondWith(
-		caches.match(evt.request, {ignoreSearch:true})
+		caches.match(evt.request)
 		.then(response => {
 			return response || fetch(evt.request);
 		}),

@@ -3,7 +3,7 @@
 	"short_name": "TT",
 	"start_url": "/",
 	"display": "standalone",
-	"scope": "/",
+	"scope": "../",
 	"theme_color": "purple",
 	"background_color": "blue",
 	"icons": [{

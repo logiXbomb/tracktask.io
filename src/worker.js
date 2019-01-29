@@ -20,6 +20,7 @@ self.addEventListener('activate', evt => {
 });
 
 self.addEventListener('fetch', evt => {
+	console.log('[ServiceWorker] Request: ', evt.request);
 	evt.respondWith(
 		caches.match(evt.request)
 		.then(response => {

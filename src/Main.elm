@@ -225,9 +225,10 @@ view model =
             div
                 [ css
                     [ C.displayFlex
+                    , C.flexDirection C.column
                     , C.width <| C.pct 100
                     , C.height <| C.pct 100
-                    , C.justifyContent C.center
+                    , C.alignItems C.center
                     ]
                 ]
                 [ h1 []

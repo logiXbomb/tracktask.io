@@ -1,6 +1,7 @@
 const cacheName = 'tracktask.io';
 const filesToCache = [
 	'/',
+	'/index.html',
 	'/dist/index.js',
 ];
 

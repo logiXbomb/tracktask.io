@@ -230,7 +230,10 @@ view model =
                     , C.justifyContent C.center
                     ]
                 ]
-                [ taskList model ]
+                [ h1 []
+                    [ text "Track Task" ]
+                , taskList model
+                ]
         ]
     }
 

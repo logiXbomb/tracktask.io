@@ -54,7 +54,11 @@ if (ports && ports.addTask) {
 
 		const activeTask = uuid();
 
-		taskList.push({ id: activeTask, title: '' });
+		taskList.push({
+			id: activeTask,
+			title: '',
+			status: 'todo',
+		});
 
 		setTasks(taskList);
 

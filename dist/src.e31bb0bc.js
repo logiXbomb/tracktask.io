@@ -14177,7 +14177,8 @@ if (ports && ports.addTask) {
     var activeTask = (0, _uuid.default)();
     taskList.push({
       id: activeTask,
-      title: ''
+      title: '',
+      status: 'todo'
     });
     setTasks(taskList);
 

@@ -123,6 +123,25 @@ if (ports && ports.moveTaskDown) {
 	});
 }
 
+if (ports && ports.setStatus) {
+	ports.setStatus.subscribe(({ activeTask, status }) => {
+		let taskList = getTasks();
+		taskList = taskList.map(t => {
+			if (t.id === activeTask) {
+				return { ...t,
+					status,
+				};
+			}
+			return t;
+		});
+		setTasks(taskList);
+		ports.updateTaskList.send({
+			taskList,
+			activeTask,
+		})
+	});
+}
+
 window.addEventListener('beforeinstallprompt', evt => {
 	evt.prompt();
 });

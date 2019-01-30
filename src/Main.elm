@@ -25,6 +25,14 @@ type IOError
     = ItFailed
 
 
+type Status
+    = Done
+
+
+
+-- MSG
+
+
 type Msg
     = AddTask
     | UpdateTaskList TaskListResponse
@@ -140,8 +148,22 @@ update msg model =
                     , saveTaskList model.tasks
                     )
 
-                PendKey ->
-                    ( { model | pendingKey = Just Down }
+                PendKey k ->
+                    let
+                        pendingKey =
+                            case k of
+                                "m" ->
+                                    Just Down
+
+                                "s" ->
+                                    Just WaitingStatus
+
+                                _ ->
+                                    Nothing
+                    in
+                    ( { model
+                        | pendingKey = pendingKey
+                      }
                     , Cmd.none
                     )
 
@@ -157,6 +179,16 @@ update msg model =
                                 | activeTask = nextTask model
                               }
                             , Cmd.none
+                            )
+
+                SetStatus k ->
+                    case k of
+                        Done ->
+                            ( { model | pendingKey = Nothing }
+                            , setStatus
+                                { activeTask = model.activeTask
+                                , status = "done"
+                                }
                             )
 
                 _ ->
@@ -344,8 +376,10 @@ type KeyPress
     | InsertMode
     | NormalMode
     | AppendNewLine
-    | PendKey
+    | PendKey String
     | PrependNewLine
+    | SetStatus Status
+    | WaitingStatus
     | NoOpKey
 
 
@@ -359,7 +393,15 @@ keyPress model =
         (Decode.field "key" Decode.string)
         |> Decode.map
             (\event ->
-                if model.mode == Normal then
+                if model.pendingKey == Just WaitingStatus then
+                    case event.key of
+                        "d" ->
+                            SetStatus Done
+
+                        _ ->
+                            NoOpKey
+
+                else if model.mode == Normal then
                     case event.key of
                         "k" ->
                             Up
@@ -377,7 +419,10 @@ keyPress model =
                             InsertMode
 
                         "m" ->
-                            PendKey
+                            PendKey "m"
+
+                        "s" ->
+                            PendKey "s"
 
                         _ ->
                             NoOpKey
@@ -437,3 +482,12 @@ port moveTaskUp : String -> Cmd msg
 
 
 port moveTaskDown : String -> Cmd msg
+
+
+type alias StatusMessage =
+    { activeTask : String
+    , status : String
+    }
+
+
+port setStatus : StatusMessage -> Cmd msg

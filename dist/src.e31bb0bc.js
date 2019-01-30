@@ -5690,6 +5690,7 @@ var author$project$Main$UpdateTaskList = function (a) {
 	return {$: 'UpdateTaskList', a: a};
 };
 var author$project$Main$AppendNewLine = {$: 'AppendNewLine'};
+var author$project$Main$Done = {$: 'Done'};
 var author$project$Main$Down = {$: 'Down'};
 var author$project$Main$InsertMode = {$: 'InsertMode'};
 var author$project$Main$KeyEvent = function (key) {
@@ -5697,9 +5698,15 @@ var author$project$Main$KeyEvent = function (key) {
 };
 var author$project$Main$NoOpKey = {$: 'NoOpKey'};
 var author$project$Main$NormalMode = {$: 'NormalMode'};
-var author$project$Main$PendKey = {$: 'PendKey'};
+var author$project$Main$PendKey = function (a) {
+	return {$: 'PendKey', a: a};
+};
 var author$project$Main$PrependNewLine = {$: 'PrependNewLine'};
+var author$project$Main$SetStatus = function (a) {
+	return {$: 'SetStatus', a: a};
+};
 var author$project$Main$Up = {$: 'Up'};
+var author$project$Main$WaitingStatus = {$: 'WaitingStatus'};
 var elm$json$Json$Decode$field = _Json_decodeField;
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$string = _Json_decodeString;
@@ -5707,30 +5714,43 @@ var author$project$Main$keyPress = function (model) {
 	return A2(
 		elm$json$Json$Decode$map,
 		function (event) {
-			if (_Utils_eq(model.mode, author$project$Main$Normal)) {
+			if (_Utils_eq(
+				model.pendingKey,
+				elm$core$Maybe$Just(author$project$Main$WaitingStatus))) {
 				var _n0 = event.key;
-				switch (_n0) {
-					case 'k':
-						return author$project$Main$Up;
-					case 'j':
-						return author$project$Main$Down;
-					case 'o':
-						return author$project$Main$AppendNewLine;
-					case 'O':
-						return author$project$Main$PrependNewLine;
-					case 'i':
-						return author$project$Main$InsertMode;
-					case 'm':
-						return author$project$Main$PendKey;
-					default:
-						return author$project$Main$NoOpKey;
-				}
-			} else {
-				var _n1 = event.key;
-				if (_n1 === 'Escape') {
-					return author$project$Main$NormalMode;
+				if (_n0 === 'd') {
+					return author$project$Main$SetStatus(author$project$Main$Done);
 				} else {
 					return author$project$Main$NoOpKey;
+				}
+			} else {
+				if (_Utils_eq(model.mode, author$project$Main$Normal)) {
+					var _n1 = event.key;
+					switch (_n1) {
+						case 'k':
+							return author$project$Main$Up;
+						case 'j':
+							return author$project$Main$Down;
+						case 'o':
+							return author$project$Main$AppendNewLine;
+						case 'O':
+							return author$project$Main$PrependNewLine;
+						case 'i':
+							return author$project$Main$InsertMode;
+						case 'm':
+							return author$project$Main$PendKey('m');
+						case 's':
+							return author$project$Main$PendKey('s');
+						default:
+							return author$project$Main$NoOpKey;
+					}
+				} else {
+					var _n2 = event.key;
+					if (_n2 === 'Escape') {
+						return author$project$Main$NormalMode;
+					} else {
+						return author$project$Main$NoOpKey;
+					}
 				}
 			}
 		},
@@ -10364,6 +10384,20 @@ var author$project$Main$saveTaskList = _Platform_outgoingPort(
 						elm$json$Json$Encode$string($.title))
 					]));
 		}));
+var author$project$Main$setStatus = _Platform_outgoingPort(
+	'setStatus',
+	function ($) {
+		return elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'activeTask',
+					elm$json$Json$Encode$string($.activeTask)),
+					_Utils_Tuple2(
+					'status',
+					elm$json$Json$Encode$string($.status))
+				]));
+	});
 var elm$browser$Browser$Dom$focus = _Browser_call('focus');
 var elm$core$Task$onError = _Scheduler_onError;
 var elm$core$Task$attempt = F2(
@@ -10467,17 +10501,26 @@ var author$project$Main$update = F2(
 									{mode: author$project$Main$Normal}),
 								author$project$Main$saveTaskList(model.tasks));
 						case 'PendKey':
+							var k = key.a;
+							var pendingKey = function () {
+								switch (k) {
+									case 'm':
+										return elm$core$Maybe$Just(author$project$Main$Down);
+									case 's':
+										return elm$core$Maybe$Just(author$project$Main$WaitingStatus);
+									default:
+										return elm$core$Maybe$Nothing;
+								}
+							}();
 							return _Utils_Tuple2(
 								_Utils_update(
 									model,
-									{
-										pendingKey: elm$core$Maybe$Just(author$project$Main$Down)
-									}),
+									{pendingKey: pendingKey}),
 								elm$core$Platform$Cmd$none);
 						case 'Down':
-							var _n5 = model.pendingKey;
-							if (_n5.$ === 'Just') {
-								var pk = _n5.a;
+							var _n6 = model.pendingKey;
+							if (_n6.$ === 'Just') {
+								var pk = _n6.a;
 								return _Utils_Tuple2(
 									_Utils_update(
 										model,
@@ -10492,6 +10535,14 @@ var author$project$Main$update = F2(
 										}),
 									elm$core$Platform$Cmd$none);
 							}
+						case 'SetStatus':
+							var k = key.a;
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{pendingKey: elm$core$Maybe$Nothing}),
+								author$project$Main$setStatus(
+									{activeTask: model.activeTask, status: 'done'}));
 						default:
 							return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 					}
@@ -13519,7 +13570,7 @@ _Platform_export({'Main':{'init':author$project$Main$main(
 							},
 							A2(elm$json$Json$Decode$field, 'id', elm$json$Json$Decode$string));
 					},
-					A2(elm$json$Json$Decode$field, 'title', elm$json$Json$Decode$string))))))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{"Main.Task":{"args":[],"type":"{ id : String.String, title : String.String }"},"Main.TaskListResponse":{"args":[],"type":"{ activeTask : String.String, taskList : List.List Main.Task }"}},"unions":{"Main.Msg":{"args":[],"tags":{"AddTask":[],"UpdateTaskList":["Main.TaskListResponse"],"UpdateTaskTitle":["String.String","String.String"],"HandleKeyStroke":["Main.KeyPress"],"NoOp":[]}},"Main.KeyPress":{"args":[],"tags":{"Down":[],"Up":[],"InsertMode":[],"NormalMode":[],"AppendNewLine":[],"PendKey":[],"PrependNewLine":[],"NoOpKey":[]}},"List.List":{"args":["a"],"tags":{}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});
+					A2(elm$json$Json$Decode$field, 'title', elm$json$Json$Decode$string))))))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{"Main.Task":{"args":[],"type":"{ id : String.String, title : String.String }"},"Main.TaskListResponse":{"args":[],"type":"{ activeTask : String.String, taskList : List.List Main.Task }"}},"unions":{"Main.Msg":{"args":[],"tags":{"AddTask":[],"UpdateTaskList":["Main.TaskListResponse"],"UpdateTaskTitle":["String.String","String.String"],"HandleKeyStroke":["Main.KeyPress"],"NoOp":[]}},"Main.KeyPress":{"args":[],"tags":{"Down":[],"Up":[],"InsertMode":[],"NormalMode":[],"AppendNewLine":[],"PendKey":["String.String"],"PrependNewLine":[],"SetStatus":["Main.Status"],"WaitingStatus":[],"NoOpKey":[]}},"List.List":{"args":["a"],"tags":{}},"String.String":{"args":[],"tags":{"String":[]}},"Main.Status":{"args":[],"tags":{"Done":[]}}}}})}});
 
 //////////////////// HMR BEGIN ////////////////////
 
@@ -14033,6 +14084,10 @@ var _Main = require("./Main.elm");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var getItem = function getItem(key) {
   return function () {
     var json = localStorage.getItem(key);
@@ -14156,6 +14211,28 @@ if (ports && ports.moveTaskDown) {
         activeTask: activeTask
       });
     }
+  });
+}
+
+if (ports && ports.setStatus) {
+  ports.setStatus.subscribe(function (_ref) {
+    var activeTask = _ref.activeTask,
+        status = _ref.status;
+    var taskList = getTasks();
+    taskList = taskList.map(function (t) {
+      if (t.id === activeTask) {
+        return _objectSpread({}, t, {
+          status: status
+        });
+      }
+
+      return t;
+    });
+    setTasks(taskList);
+    ports.updateTaskList.send({
+      taskList: taskList,
+      activeTask: activeTask
+    });
   });
 }
 

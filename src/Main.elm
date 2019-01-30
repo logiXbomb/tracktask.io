@@ -5,6 +5,7 @@ import Browser.Dom as Dom
 import Browser.Events as DOMEvents
 import Browser.Navigation as Nav
 import Css as C
+import Css.Global exposing (global, selector)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
@@ -234,6 +235,14 @@ view model =
                 [ h1 []
                     [ text "Track Task" ]
                 , taskList model
+                , global
+                    [ selector "html, body"
+                        [ C.margin C.zero
+                        , C.padding C.zero
+                        ]
+                    , selector "*"
+                        [ C.boxSizing C.borderBox ]
+                    ]
                 ]
         ]
     }
@@ -245,7 +254,11 @@ view model =
 
 taskList : Model -> Html Msg
 taskList model =
-    div []
+    div
+        [ css
+            [ C.width <| C.pct 100
+            ]
+        ]
         (model.tasks
             |> List.map (task model)
         )
@@ -259,8 +272,9 @@ task model t =
     in
     div
         [ css
-            [ C.width <| C.px 150
-            , C.height <| C.px 48
+            [ C.height <| C.px 48
+            , C.margin2 (C.px 5) (C.px 5)
+            , C.padding2 (C.px 2) (C.px 3)
             , if isActive then
                 C.border3 (C.px 3) C.solid (C.hex "00b38a")
 

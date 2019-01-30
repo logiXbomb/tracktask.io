@@ -5705,6 +5705,7 @@ var author$project$Main$PrependNewLine = {$: 'PrependNewLine'};
 var author$project$Main$SetStatus = function (a) {
 	return {$: 'SetStatus', a: a};
 };
+var author$project$Main$ToDo = {$: 'ToDo'};
 var author$project$Main$Up = {$: 'Up'};
 var author$project$Main$WaitingStatus = {$: 'WaitingStatus'};
 var elm$json$Json$Decode$field = _Json_decodeField;
@@ -5718,10 +5719,13 @@ var author$project$Main$keyPress = function (model) {
 				model.pendingKey,
 				elm$core$Maybe$Just(author$project$Main$WaitingStatus))) {
 				var _n0 = event.key;
-				if (_n0 === 'd') {
-					return author$project$Main$SetStatus(author$project$Main$Done);
-				} else {
-					return author$project$Main$NoOpKey;
+				switch (_n0) {
+					case 'd':
+						return author$project$Main$SetStatus(author$project$Main$Done);
+					case 't':
+						return author$project$Main$SetStatus(author$project$Main$ToDo);
+					default:
+						return author$project$Main$NoOpKey;
 				}
 			} else {
 				if (_Utils_eq(model.mode, author$project$Main$Normal)) {
@@ -10240,11 +10244,16 @@ var author$project$Main$updateTaskList = _Platform_incomingPort(
 					function (title) {
 						return A2(
 							elm$json$Json$Decode$andThen,
-							function (id) {
-								return elm$json$Json$Decode$succeed(
-									{id: id, title: title});
+							function (status) {
+								return A2(
+									elm$json$Json$Decode$andThen,
+									function (id) {
+										return elm$json$Json$Decode$succeed(
+											{id: id, status: status, title: title});
+									},
+									A2(elm$json$Json$Decode$field, 'id', elm$json$Json$Decode$string));
 							},
-							A2(elm$json$Json$Decode$field, 'id', elm$json$Json$Decode$string));
+							A2(elm$json$Json$Decode$field, 'status', elm$json$Json$Decode$string));
 					},
 					A2(elm$json$Json$Decode$field, 'title', elm$json$Json$Decode$string))))));
 var elm$core$Platform$Sub$batch = _Platform_batch;
@@ -10379,6 +10388,9 @@ var author$project$Main$saveTaskList = _Platform_outgoingPort(
 						_Utils_Tuple2(
 						'id',
 						elm$json$Json$Encode$string($.id)),
+						_Utils_Tuple2(
+						'status',
+						elm$json$Json$Encode$string($.status)),
 						_Utils_Tuple2(
 						'title',
 						elm$json$Json$Encode$string($.title))
@@ -10537,12 +10549,27 @@ var author$project$Main$update = F2(
 							}
 						case 'SetStatus':
 							var k = key.a;
+							if (k.$ === 'Done') {
+								return _Utils_Tuple2(
+									_Utils_update(
+										model,
+										{pendingKey: elm$core$Maybe$Nothing}),
+									author$project$Main$setStatus(
+										{activeTask: model.activeTask, status: 'done'}));
+							} else {
+								return _Utils_Tuple2(
+									_Utils_update(
+										model,
+										{pendingKey: elm$core$Maybe$Nothing}),
+									author$project$Main$setStatus(
+										{activeTask: model.activeTask, status: 'todo'}));
+							}
+						case 'NoOpKey':
 							return _Utils_Tuple2(
 								_Utils_update(
 									model,
 									{pendingKey: elm$core$Maybe$Nothing}),
-								author$project$Main$setStatus(
-									{activeTask: model.activeTask, status: 'done'}));
+								elm$core$Platform$Cmd$none);
 						default:
 							return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 					}
@@ -12909,7 +12936,7 @@ var author$project$Main$task = F2(
 				]),
 			_List_fromArray(
 				[
-					author$project$Main$icon('check_box_outline_blank'),
+					(t.status === 'done') ? author$project$Main$icon('check_box') : author$project$Main$icon('check_box_outline_blank'),
 					A2(
 					rtfeldman$elm_css$Html$Styled$div,
 					_List_fromArray(
@@ -13564,13 +13591,18 @@ _Platform_export({'Main':{'init':author$project$Main$main(
 					function (title) {
 						return A2(
 							elm$json$Json$Decode$andThen,
-							function (id) {
-								return elm$json$Json$Decode$succeed(
-									{id: id, title: title});
+							function (status) {
+								return A2(
+									elm$json$Json$Decode$andThen,
+									function (id) {
+										return elm$json$Json$Decode$succeed(
+											{id: id, status: status, title: title});
+									},
+									A2(elm$json$Json$Decode$field, 'id', elm$json$Json$Decode$string));
 							},
-							A2(elm$json$Json$Decode$field, 'id', elm$json$Json$Decode$string));
+							A2(elm$json$Json$Decode$field, 'status', elm$json$Json$Decode$string));
 					},
-					A2(elm$json$Json$Decode$field, 'title', elm$json$Json$Decode$string))))))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{"Main.Task":{"args":[],"type":"{ id : String.String, title : String.String }"},"Main.TaskListResponse":{"args":[],"type":"{ activeTask : String.String, taskList : List.List Main.Task }"}},"unions":{"Main.Msg":{"args":[],"tags":{"AddTask":[],"UpdateTaskList":["Main.TaskListResponse"],"UpdateTaskTitle":["String.String","String.String"],"HandleKeyStroke":["Main.KeyPress"],"NoOp":[]}},"Main.KeyPress":{"args":[],"tags":{"Down":[],"Up":[],"InsertMode":[],"NormalMode":[],"AppendNewLine":[],"PendKey":["String.String"],"PrependNewLine":[],"SetStatus":["Main.Status"],"WaitingStatus":[],"NoOpKey":[]}},"List.List":{"args":["a"],"tags":{}},"String.String":{"args":[],"tags":{"String":[]}},"Main.Status":{"args":[],"tags":{"Done":[]}}}}})}});
+					A2(elm$json$Json$Decode$field, 'title', elm$json$Json$Decode$string))))))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{"Main.Task":{"args":[],"type":"{ id : String.String, title : String.String, status : String.String }"},"Main.TaskListResponse":{"args":[],"type":"{ activeTask : String.String, taskList : List.List Main.Task }"}},"unions":{"Main.Msg":{"args":[],"tags":{"AddTask":[],"UpdateTaskList":["Main.TaskListResponse"],"UpdateTaskTitle":["String.String","String.String"],"HandleKeyStroke":["Main.KeyPress"],"NoOp":[]}},"Main.KeyPress":{"args":[],"tags":{"Down":[],"Up":[],"InsertMode":[],"NormalMode":[],"AppendNewLine":[],"PendKey":["String.String"],"PrependNewLine":[],"SetStatus":["Main.Status"],"WaitingStatus":[],"NoOpKey":[]}},"List.List":{"args":["a"],"tags":{}},"String.String":{"args":[],"tags":{"String":[]}},"Main.Status":{"args":[],"tags":{"Done":[],"ToDo":[]}}}}})}});
 
 //////////////////// HMR BEGIN ////////////////////
 
@@ -14095,7 +14127,15 @@ var getItem = function getItem(key) {
     if (json) {
       try {
         var result = JSON.parse(json);
-        return result;
+        return result.map(function (r) {
+          if (!r.status) {
+            return _objectSpread({}, r, {
+              status: ''
+            });
+          }
+
+          return r;
+        });
       } catch (e) {
         return null;
       }

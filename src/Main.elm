@@ -27,6 +27,7 @@ type IOError
 
 type Status
     = Done
+    | ToDo
 
 
 
@@ -191,6 +192,19 @@ update msg model =
                                 }
                             )
 
+                        ToDo ->
+                            ( { model | pendingKey = Nothing }
+                            , setStatus
+                                { activeTask = model.activeTask
+                                , status = "todo"
+                                }
+                            )
+
+                NoOpKey ->
+                    ( { model | pendingKey = Nothing }
+                    , Cmd.none
+                    )
+
                 _ ->
                     ( model, Cmd.none )
 
@@ -324,7 +338,11 @@ task model t =
                 C.border3 (C.px 2) C.solid (C.hex "5e5e5e")
             ]
         ]
-        [ icon "check_box_outline_blank"
+        [ if t.status == "done" then
+            icon "check_box"
+
+          else
+            icon "check_box_outline_blank"
         , div
             [ css
                 [ C.marginLeft <| C.px 32
@@ -398,6 +416,9 @@ keyPress model =
                         "d" ->
                             SetStatus Done
 
+                        "t" ->
+                            SetStatus ToDo
+
                         _ ->
                             NoOpKey
 
@@ -460,6 +481,7 @@ main =
 type alias Task =
     { id : String
     , title : String
+    , status : String
     }
 
 

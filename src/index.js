@@ -6,7 +6,15 @@ const getItem = key => () => {
 	if (json) {
 		try {
 			const result = JSON.parse(json);
-			return result;
+			return result.map(r => {
+				if (!r.status) {
+					return {
+						...r,
+						status: '',
+					};
+				}
+				return r;
+			});
 		} catch (e) {
 			return null;
 		}

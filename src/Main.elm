@@ -245,6 +245,9 @@ view model =
                     [ selector "html, body"
                         [ C.margin C.zero
                         , C.padding C.zero
+                        , C.fontFamilies
+                            [ "Roboto"
+                            ]
                         ]
                     , selector "*"
                         [ C.boxSizing C.borderBox ]
@@ -278,27 +281,34 @@ task model t =
     in
     div
         [ css
-            [ C.height <| C.px 48
-            , C.margin2 (C.px 5) (C.px 5)
-            , C.padding2 (C.px 2) (C.px 3)
+            [ C.margin2 (C.px 5) (C.px 5)
+            , C.displayFlex
+            , C.alignItems C.center
+            , C.padding <| C.px 16
             , if isActive then
-                C.border3 (C.px 3) C.solid (C.hex "00b38a")
+                C.border3 (C.px 2) C.solid (C.hex "00b38a")
 
               else
                 C.border3 (C.px 2) C.solid (C.hex "5e5e5e")
             ]
         ]
         [ icon "check_box_outline_blank"
-        , if isActive && model.mode == Insert then
-            input
-                [ value t.title
-                , id "active-task"
-                , onInput (UpdateTaskTitle t.id)
+        , div
+            [ css
+                [ C.marginLeft <| C.px 32
                 ]
-                []
+            ]
+            [ if isActive && model.mode == Insert then
+                input
+                    [ value t.title
+                    , id "active-task"
+                    , onInput (UpdateTaskTitle t.id)
+                    ]
+                    []
 
-          else
-            text t.title
+              else
+                text t.title
+            ]
         ]
 
 

@@ -15,6 +15,12 @@ import Task
 import Url
 
 
+icon : String -> Html Msg
+icon str =
+    i [ class "material-icons" ]
+        [ text str ]
+
+
 type IOError
     = ItFailed
 
@@ -282,7 +288,8 @@ task model t =
                 C.border3 (C.px 2) C.solid (C.hex "5e5e5e")
             ]
         ]
-        [ if isActive && model.mode == Insert then
+        [ icon "check_box_outline_blank"
+        , if isActive && model.mode == Insert then
             input
                 [ value t.title
                 , id "active-task"

@@ -29,5 +29,5 @@ jobs:
       - deploy:
           name: Deploy
           command: |
-            sh ./repo/.circleci/deploy.sh
+            ls -la ./.circleci
             

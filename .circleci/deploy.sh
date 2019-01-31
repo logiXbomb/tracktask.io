@@ -27,4 +27,5 @@ cd out
 git add -A
 git commit -m "Automated deployment to GitHub Pages: ${CIRCLE_SHA1}" --allow-empty
 
-git push origin $TARGET_BRANCH
+git push -q https://{$GHTOKEN}@github.com/logiXbomb/tracktask.io.git $TARGET_BRANCH
+

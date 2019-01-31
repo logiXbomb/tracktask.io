@@ -4,3 +4,4 @@ tracktask.io/
 node_modules
 .cache/
 main.js
+dist/

@@ -1,33 +1,30 @@
 #!/usr/bin/env bash
-if [ $CIRCLE_BRANCH == $SOURCE_BRANCH ]; then
-	echo "step 1"
-	git config --global user.email $GH_EMAIL
-	git config --global user.name $GH_NAME
+echo "step 1 [SET GIT USER]"
+git config --global user.email "bot@tracktask.io"
+git config --global user.name "Bot"
 
-	git clone $CIRCLE_REPOSITORY_URL out
+echo "step 2 [CLONE REPO]"
+git clone $CIRCLE_REPOSITORY_URL out
 
-	cd out
-	git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
-	git rm -rf .
-	cd ../repo
+echo "step 3 [BUNDLE SOURCE]"
+cd out
+git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
+git rm -rf .
 
-	npm run build
+cd ../
 
-	cd ..
+npm run build
 
-	mv ./repo/index.html ./out/index.html
-	mv ./repo/index.js ./out/index.js
-	mv ./repo/index.map ./out/index.map
-	mv ./repo/worker.js ./out/worker.js
-	mv ./repo/worker.map ./out/worker.map
-	mv ./repo/manifest.json ./out/manifest.json
-	mv ./repo/CNAME ./out/CNAME
+echo "step 3 [COPY FILES]"
 
-	mkdir -p out/.circleci && cp -a repo/.circleci/. out/.circleci/.
-	cd out
+cp -v ./dist/* ./out
+cp ./CNAME ./out
 
-	git add -A
-	git commit -m "Automated deployment to GitHub Pages: ${CIRCLE_SHA1}" --allow-empty
+echo "step 4 [DEPLOY CHANGES]"
 
-	git push origin $TARGET_BRANCH
-fi
+cd out
+
+git add -A
+git commit -m "Automated deployment to GitHub Pages: ${CIRCLE_SHA1}" --allow-empty
+
+git push origin $TARGET_BRANCH

@@ -14,7 +14,8 @@ const getItem = key => () => {
 					};
 				}
 				return r;
-			});
+			})
+			.filter(r => r.status !== 'done');
 		} catch (e) {
 			return null;
 		}
@@ -148,7 +149,7 @@ if (ports && ports.setStatus) {
 		});
 		setTasks(taskList);
 		ports.updateTaskList.send({
-			taskList,
+			taskList: taskList.filter(t => t.status !== 'done'),
 			activeTask,
 		})
 	});

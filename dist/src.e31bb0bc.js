@@ -14135,6 +14135,8 @@ var getItem = function getItem(key) {
           }
 
           return r;
+        }).filter(function (r) {
+          return r.status !== 'done';
         });
       } catch (e) {
         return null;
@@ -14271,7 +14273,9 @@ if (ports && ports.setStatus) {
     });
     setTasks(taskList);
     ports.updateTaskList.send({
-      taskList: taskList,
+      taskList: taskList.filter(function (t) {
+        return t.status !== 'done';
+      }),
       activeTask: activeTask
     });
   });
@@ -14307,7 +14311,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63800" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53073" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

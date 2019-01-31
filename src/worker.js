@@ -2,7 +2,7 @@ const cacheName = 'tracktask';
 const filesToCache = [
 	'../',
 	'../index.html',
-	'../dist/index.js',
+	'../index.js',
 ];
 
 self.addEventListener('install', evt => {

@@ -30,6 +30,7 @@ jobs:
           name: Deploy
           command: |
             if [ $CIRCLE_BRANCH == $SOURCE_BRANCH ]; then
+              echo "step 1"
               git config --global user.email $GH_EMAIL
               git config --global user.name $GH_NAME
 

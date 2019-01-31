@@ -16,10 +16,6 @@ jobs:
           keys:
           - v1-npm-{{ checksum "package.json" }}
           - v1-npm-
-      - restore_cache:
-          keys:
-          - v1-elm-{{ checksum "elm.json" }}
-          - v1-elm-
       - run:
           name: Install Dependencies
           command: npm install
@@ -35,7 +31,3 @@ jobs:
           command: |
             chmod +x ./.circleci/deploy.sh
             ./.circleci/deploy.sh
-      - save_cache:
-          paths:
-            - elm-stuff
-          key: v1-elm-{{ checksum "elm.json" }} 

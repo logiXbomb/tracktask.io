@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  build:
+    branches:
+      only:
+        - master
+    docker:
+      - image: circleci/node:11
+    working_directory: ~/repo
+    environment:
+      - SOURCE_BRANCH: master
+      - TARGET_BRANCH: gh-pages
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-npm-{{ checksum "package.json" }}
+          - v1-npm-
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-npm-{{ checksum "package.json" }}
+      - run:
+          name: Run Tests
+          command: npm test
+      - deploy:
+          name: Deploy
+          command: |
+            chmod +x ./.circleci/deploy.sh
+            ./.circleci/deploy.sh

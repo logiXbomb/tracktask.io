@@ -20,7 +20,7 @@ echo "step 3 [COPY FILES]"
 cp -v ./dist/* ./out
 cp ./CNAME ./out
 
-mkdir -p out/.circleci && cp -a repo/.circleci/. out/.circleci/.
+mkdir -p out/.circleci && cp -a .circleci/. out/.circleci/.
 
 echo "step 4 [DEPLOY CHANGES]"
 

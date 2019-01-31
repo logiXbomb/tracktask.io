@@ -17,7 +17,7 @@ jobs:
           - v1-dependencies-{{ checksum "package.json" }}
           - v1-dependencies-
       - run:
-          name: "Install Dependencies"
+          name: Install Dependencies
           command: npm install
       - save_cache:
           paths:
@@ -25,7 +25,7 @@ jobs:
           key:
             - v1-dependencies-{{ checksum "package.json" }}
       - run:
-          name: "Run Tests"
+          name: Run Tests
           command: npm test
       - deploy:
           name: Deploy

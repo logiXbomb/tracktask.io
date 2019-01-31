@@ -39,11 +39,19 @@ jobs:
               cd out
               git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
               git rm -rf .
-              cd ..
+              cd ../repo
 
               npm run build
 
-              cp -a build/. out/.
+              cd ..
+
+              mv ./repo/index.html ./out/index.html
+              mv ./repo/index.js ./out/index.js
+              mv ./repo/index.map ./out/index.map
+              mv ./repo/worker.js ./out/worker.js
+              mv ./repo/worker.map ./out/worker.map
+              mv ./repo/manifest.json ./out/manifest.json
+              mv ./repo/CNAME ./out/CNAME
 
               mkdir -p out/.circleci && cp -a .circleci/. out/.circleci/.
               cd out

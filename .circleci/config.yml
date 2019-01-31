@@ -53,7 +53,7 @@ jobs:
               mv ./repo/manifest.json ./out/manifest.json
               mv ./repo/CNAME ./out/CNAME
 
-              mkdir -p out/.circleci && cp -a .circleci/. out/.circleci/.
+              mkdir -p out/.circleci && cp -a repo/.circleci/. out/.circleci/.
               cd out
 
               git add -A

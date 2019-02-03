@@ -5,9 +5,10 @@
   "main": "main.js",
   "scripts": {
     "build": "parcel build ./src/index.js ./src/worker.js -d ./dist",
-		"postbuild": "cp ./src/index.html ./dist/index.html",
-    "start": "parcel ./src/index.html",
-    "test": "echo \"Error: no test specified\" && exit 0"
+		"cypress": "cypress open",
+    "postbuild": "cp ./src/index.html ./dist/index.html",
+    "start": "parcel ./src/index.html -p 3020",
+    "test": "cypress open"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   },
   "homepage": "https://github.com/logiXbomb/vimtask#readme",
   "devDependencies": {
+    "cypress": "^3.1.5",
     "elm-hot": "^1.0.1",
     "node-elm-compiler": "^5.0.1",
     "parcel": "^1.11.0"

@@ -319,6 +319,13 @@ taskList model =
         )
 
 
+editTaskStyles =
+    css
+        [ C.outline C.none
+        , C.border C.zero
+        ]
+
+
 task : Model -> Task -> Html Msg
 task model t =
     let
@@ -353,6 +360,7 @@ task model t =
                     [ value t.title
                     , id "active-task"
                     , onInput (UpdateTaskTitle t.id)
+                    , editTaskStyles
                     ]
                     []
 
